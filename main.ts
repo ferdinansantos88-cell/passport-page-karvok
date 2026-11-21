@@ -16,4 +16,7 @@ if (buf.length > 1048576) throw new Error(`entry.png too large: ${buf.length} by
 const outDir = process.env.MAKEFUN_OUTPUT_DIR || "/output";
 mkdirSync(outDir, { recursive: true });
 writeFileSync(join(outDir, "entry.png"), buf);
-console.log(`entry.png ${width}x${height} ${buf.length} bytes -> ${join(outDir, "entry.png")}`);
+// Verify the copy landed intact before reporting success.
+const written = readFileSync(join(outDir, "entry.png"));
+if (written.length !== buf.length || !written.subarray(0, 8).equals(PNG_SIG)) throw new Error("output entry.png failed verification after copy");
+console.log(`entry.png ${width}x${height} ${buf.length} bytes -> ${join(outDir, "entry.png")} (verified)`);
